@@ -639,7 +639,7 @@ def edit_venue_submission(venue_id):
     # TODO: take values from the form submitted, and update existing
     # venue record with ID <venue_id> using the new attributes
     a_venue = Venue.query.get(venue_id)
-    form = VenueForm()
+    form = request.form
     try:
         a_venue.name = form.name.data,
         a_venue.city = form.city.data,
