@@ -20,5 +20,4 @@ class DatabaseURI:
         username, password, url, DATABASE_NAME)
 
 
-# TODO IMPLEMENT DATABASE URL
 SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:123456@localhost/Fyrr'

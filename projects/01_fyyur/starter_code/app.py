@@ -25,6 +25,7 @@ app = Flask(__name__)
 moment = Moment(app)
 app.config.from_object('config')
 db = SQLAlchemy(app)
+db.init_app(app)
 migrate = Migrate(app, db)
 
 # TODO: connect to a local postgresql database
@@ -381,10 +382,13 @@ def edit_venue_submission(venue_id):
         a_venue.website_link = form['website_link'],
         a_venue.seeking_talent = form['seeking_talent'],
         a_venue.seeking_description = form['seeking_description']
+        print(a_venue)
         db.session.commit()
     except:
+        print(a_venue)
         db.session.rollback()
     finally:
+        print(a_venue)
         db.session.close()
     return redirect(url_for('show_venue', venue_id=venue_id))
 
