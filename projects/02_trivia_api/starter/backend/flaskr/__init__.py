@@ -46,7 +46,7 @@ def create_app(test_config=None):
   Create an endpoint to handle GET requests 
   for all available categories.
   '''
-
+    @cross_origin()
     @app.route('/categories')
     def get_categories():
         categories = {category.id: category.type for category in Category.query.all()}
@@ -67,7 +67,7 @@ def create_app(test_config=None):
   ten questions per page and pagination at the bottom of the screen for three pages.
   Clicking on the page numbers should update the questions. 
   '''
-
+    @cross_origin()
     @app.route('/questions', methods=["GET"])
     def get_questions():
         selection = Question.query.order_by(Question.id).all()
@@ -92,7 +92,7 @@ def create_app(test_config=None):
   TEST: When you click the trash icon next to a question, the question will be removed.
   This removal will persist in the database and when you refresh the page. 
   '''
-
+    @cross_origin()
     @app.route("/questions/<int:question_id>", methods=["DELETE"])
     def question_delete(question_id):
         question = Question.query.filter(Question.id == question_id).one_or_none()
@@ -169,7 +169,7 @@ def create_app(test_config=None):
   categories in the left column will cause only questions of that 
   category to be shown. 
   '''
-
+    @cross_origin()
     @app.route('/categories/<int:id>/questions')
     def get_questions_by_category(id):
         my_list = []
@@ -197,7 +197,7 @@ def create_app(test_config=None):
     @app.route('/quizzes', methods=['POST'])
     def create_quizz():
         body = request.get_json()
-        previous_question = body.get('previous_questions')
+        previous_questions = body.get('previous_questions')
         quiz_category = body.get('quiz_category')
 
         question = Question.query.filter(Question.category == quiz_category["id"]).first()
