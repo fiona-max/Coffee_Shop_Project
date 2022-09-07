@@ -70,6 +70,13 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['total_questions'])
         self.assertTrue(len(data['categories']))
 
+    def test_get_paginated_question_failure(self):
+        res = self.client().get('/questions?page=1000')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data['success'], False)
+
     def test_retrieve_categories(self):
         res = self.client().get('/categories')
         data = json.loads(res.data)
@@ -78,17 +85,23 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], True)
         self.assertTrue(len(data['categories']))
 
-    def test_delete_question(self):
-        res = self.client().delete('/questions/12')
+    # Works when there are no categories in the database
+    def test_retrieve_categories_not_found(self):
+        res = self.client().get('/categories')
         data = json.loads(res.data)
 
-        a_question = Question.query.filter(Question.id == 12).one_or_none()
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data['success'], False)
+
+    def test_delete_question(self):
+        res = self.client().delete('/questions/50')
+        data = json.loads(res.data)
+
+        a_question = Question.query.filter(Question.id == 50).one_or_none()
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        self.assertEqual(data['deleted'], 12)
-        self.assertTrue(len(data['questions']))
-        self.assertTrue(data['total_questions'])
+        self.assertEqual(data['deleted'], 50)
         self.assertEqual(a_question, None)
 
     def test_404_if_question_does_not_exist(self):
@@ -125,7 +138,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(len(data['questions']))
 
     def test_retrieve_question_not_found(self):
-        res = self.client().get('/categories/6/questions')
+        res = self.client().get('/categories/19/questions')
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 404)
