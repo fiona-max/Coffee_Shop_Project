@@ -89,7 +89,7 @@ def create_drinks(jwt):
     new_recipe = body.get('recipe', None)
 
     try:
-        drink = Drink(title=new_title, recipe=new_recipe)
+        drink = Drink(title=new_title, recipe=json.dumps(new_recipe))
         drink.insert()
         new_drinks = [_drink.long() for _drink in Drink.query.all()]
         return jsonify({
@@ -116,15 +116,22 @@ def create_drinks(jwt):
 @cross_origin()
 @app.route('/drinks/<int:id>', methods=['PATCH'])
 @requires_auth("patch:drinks")
-def update_drinks(drink_id):
+def update_drinks(jwt, id):
     body = request.get_json()
-    a_drink = Drink.query.get(drink_id)
+    a_drink = Drink.query.get(id)
+
     if not a_drink:
         abort(404)
-    else:
-        return jsonify({
-            'success': True
-        })
+    try:
+        a_drink.title = body.get("title", a_drink.title)
+        recipe = body.get("recipe")
+        a_drink.recipe = json.dumps(recipe)
+
+        a_drink.update()
+        return jsonify({"success": True, "drinks": [a_drink.long()]})
+    except Exception as ex:
+        print(ex)
+        # abort(422)
 
 
 '''
