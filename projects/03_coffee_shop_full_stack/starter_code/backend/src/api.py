@@ -2,7 +2,7 @@ import os
 from flask import Flask, request, jsonify, abort
 from sqlalchemy import exc
 import json
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 
 from .database.models import db_drop_and_create_all, setup_db, Drink
 from .auth.auth import AuthError, requires_auth
@@ -17,7 +17,7 @@ CORS(app)
 !! NOTE THIS MUST BE UNCOMMENTED ON FIRST RUN
 !! Running this function will add one
 '''
-# db_drop_and_create_all()
+db_drop_and_create_all()
 
 # ROUTES
 '''
@@ -30,6 +30,18 @@ CORS(app)
 '''
 
 
+@cross_origin()
+@app.route('/drinks', methods=["GET"])
+def get_drinks():
+    all_drinks = [drink.short() for drink in Drink.query.all()]
+    if len(all_drinks) == 0:
+        abort(404)
+    return jsonify({
+        'success': True,
+        'drinks': all_drinks
+    })
+
+
 '''
 @TODO implement endpoint
     GET /drinks-detail
@@ -38,6 +50,22 @@ CORS(app)
     returns status code 200 and json {"success": True, "drinks": drinks} where drinks is the list of drinks
         or appropriate status code indicating reason for failure
 '''
+
+
+@cross_origin()
+@app.route('/drinks-detail', methods=['GET'])
+@requires_auth("get:drinks-detail")
+def get_drinks_detail():
+    try:
+        a_drink = [_drink.long() for _drink in Drink.query.all()]
+    except AuthError as e:
+        abort(e)
+    except:
+        abort(422)
+    return jsonify({
+        'success': True,
+        'drinks': a_drink
+    })
 
 
 '''
@@ -49,7 +77,6 @@ CORS(app)
     returns status code 200 and json {"success": True, "drinks": drink} where drink an array containing only the newly created drink
         or appropriate status code indicating reason for failure
 '''
-
 
 '''
 @TODO implement endpoint
@@ -63,7 +90,6 @@ CORS(app)
         or appropriate status code indicating reason for failure
 '''
 
-
 '''
 @TODO implement endpoint
     DELETE /drinks/<id>
@@ -74,6 +100,22 @@ CORS(app)
     returns status code 200 and json {"success": True, "delete": id} where id is the id of the deleted record
         or appropriate status code indicating reason for failure
 '''
+
+
+@cross_origin()
+@app.route("/drinks/<int:drink_id>", methods=["DELETE"])
+def drink_delete(drink_id):
+    try:
+        a_drink = Drink.query.filter(Drink.id == drink_id).one_or_none()
+        if a_drink is None:
+            abort(404)
+        a_drink.delete()
+        return jsonify({
+            'success': True,
+            'delete': a_drink.id,
+        })
+    except:
+        abort(422)
 
 
 # Error Handling
@@ -108,10 +150,35 @@ def unprocessable(error):
 '''
 
 
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({
+        "success": False,
+        "error": 404,
+        "message": "resource not found"
+    }), 404
+
+
 '''
 @TODO implement error handler for AuthError
     error handler should conform to general task above
 '''
+
+
+@app.errorhandler(AuthError)
+def auth_error(error):
+    return (
+        jsonify(
+            {
+                "success": False,
+                "error": error.status_code,
+                # "message": error.error.get("description"),
+                **error.error,
+            }
+        ),
+        error.status_code,
+    )
+
 
 if __name__ == "__main__":
     app.debug = True
