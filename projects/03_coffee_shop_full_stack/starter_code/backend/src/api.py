@@ -129,9 +129,8 @@ def update_drinks(jwt, id):
 
         a_drink.update()
         return jsonify({"success": True, "drinks": [a_drink.long()]})
-    except Exception as ex:
-        print(ex)
-        # abort(422)
+    except:
+        abort(422)
 
 
 '''

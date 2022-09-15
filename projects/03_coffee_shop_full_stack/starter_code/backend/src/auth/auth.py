@@ -66,9 +66,15 @@ def get_token_auth_header():
 
 def check_permissions(permission, payload):
     if 'permissions' not in payload:
-        raise Exception('Not Implemented')
+        raise AuthError({
+            'code': 'permission not found',
+            'description': 'Unable to find the appropriate key.'
+        }, 403)
     if permission not in payload['permissions']:
-        raise Exception('Not Implemented')
+        raise AuthError({
+            'code': 'permission not found',
+            'description': 'Unable to find the appropriate key.'
+        }, 403)
     return True
 
 
