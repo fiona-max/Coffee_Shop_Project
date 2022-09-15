@@ -41,7 +41,7 @@ def get_token_auth_header():
         raise AuthError({
             'code': 'Authorization not found',
             'description': 'Unable to find the appropriate key.'
-        }, 403)
+        }, 401)
     auth_header = request.headers['Authorization']
     header_parts = auth_header.split(' ')
 
@@ -49,13 +49,13 @@ def get_token_auth_header():
         raise AuthError({
             'code': 'Authorization not found',
             'description': 'Unable to find the appropriate key.'
-        }, 403)
+        }, 401)
 
     elif header_parts[0].lower() != 'bearer':
         raise AuthError({
             'code': 'Authorization not found',
             'description': 'Unable to find the appropriate key.'
-        }, 403)
+        }, 401)
 
     return header_parts[1]
 

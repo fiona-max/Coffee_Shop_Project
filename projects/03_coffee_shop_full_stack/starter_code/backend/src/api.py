@@ -83,8 +83,8 @@ def get_drinks_detail(jwt):
 def create_drinks(jwt):
     body = request.get_json()
 
-    new_title = body.get('title', None)
-    new_recipe = body.get('recipe', None)
+    new_title = body.get('title')
+    new_recipe = body.get('recipe')
 
     try:
         drink = Drink(title=new_title, recipe=json.dumps(new_recipe))
@@ -92,7 +92,7 @@ def create_drinks(jwt):
         new_drinks = [_drink.long() for _drink in Drink.query.all()]
         return jsonify({
             'success': True,
-            'questions': new_drinks,
+            'drinks': new_drinks,
         })
     except:
         abort(422)
