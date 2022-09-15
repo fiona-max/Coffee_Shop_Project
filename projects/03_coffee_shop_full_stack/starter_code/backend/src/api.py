@@ -55,7 +55,7 @@ def get_drinks():
 @cross_origin()
 @app.route('/drinks-detail', methods=['GET'])
 @requires_auth("get:drinks-detail")
-def get_drinks_detail():
+def get_drinks_detail(jwt):
     try:
         a_drink = [_drink.long() for _drink in Drink.query.all()]
     except AuthError as e:
@@ -78,6 +78,28 @@ def get_drinks_detail():
         or appropriate status code indicating reason for failure
 '''
 
+
+@cross_origin()
+@app.route('/drinks', methods=['POST'])
+@requires_auth("post:drinks")
+def create_drinks(jwt):
+    body = request.get_json()
+
+    new_title = body.get('title', None)
+    new_recipe = body.get('recipe', None)
+
+    try:
+        drink = Drink(title=new_title, recipe=new_recipe)
+        drink.insert()
+        new_drinks = [_drink.long() for _drink in Drink.query.all()]
+        return jsonify({
+            'success': True,
+            'questions': new_drinks,
+        })
+    except:
+        abort(422)
+
+
 '''
 @TODO implement endpoint
     PATCH /drinks/<id>
@@ -89,6 +111,21 @@ def get_drinks_detail():
     returns status code 200 and json {"success": True, "drinks": drink} where drink an array containing only the updated drink
         or appropriate status code indicating reason for failure
 '''
+
+
+@cross_origin()
+@app.route('/drinks/<int:id>', methods=['PATCH'])
+@requires_auth("patch:drinks")
+def update_drinks(drink_id):
+    body = request.get_json()
+    a_drink = Drink.query.get(drink_id)
+    if not a_drink:
+        abort(404)
+    else:
+        return jsonify({
+            'success': True
+        })
+
 
 '''
 @TODO implement endpoint
