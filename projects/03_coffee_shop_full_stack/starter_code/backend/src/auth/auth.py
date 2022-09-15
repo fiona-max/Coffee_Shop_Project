@@ -38,15 +38,24 @@ class AuthError(Exception):
 
 def get_token_auth_header():
     if 'Authorization' not in request.headers:
-        raise Exception('Not Implemented')
+        raise AuthError({
+            'code': 'Authorization not found',
+            'description': 'Unable to find the appropriate key.'
+        }, 403)
     auth_header = request.headers['Authorization']
     header_parts = auth_header.split(' ')
 
     if len(header_parts) != 2:
-        raise Exception('Not Implemented')
+        raise AuthError({
+            'code': 'Authorization not found',
+            'description': 'Unable to find the appropriate key.'
+        }, 403)
 
     elif header_parts[0].lower() != 'bearer':
-        raise Exception('Not Implemented')
+        raise AuthError({
+            'code': 'Authorization not found',
+            'description': 'Unable to find the appropriate key.'
+        }, 403)
 
     return header_parts[1]
 

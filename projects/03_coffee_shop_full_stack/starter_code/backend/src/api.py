@@ -34,8 +34,6 @@ db_drop_and_create_all()
 @app.route('/drinks', methods=["GET"])
 def get_drinks():
     all_drinks = [drink.short() for drink in Drink.query.all()]
-    if len(all_drinks) == 0:
-        abort(404)
     return jsonify({
         'success': True,
         'drinks': all_drinks
@@ -146,10 +144,11 @@ def update_drinks(jwt, id):
 
 
 @cross_origin()
-@app.route("/drinks/<int:drink_id>", methods=["DELETE"])
-def drink_delete(drink_id):
+@app.route("/drinks/<int:id>", methods=["DELETE"])
+@requires_auth("delete:drinks")
+def drink_delete(jwt, id):
     try:
-        a_drink = Drink.query.filter(Drink.id == drink_id).one_or_none()
+        a_drink = Drink.query.filter(Drink.id == id).one_or_none()
         if a_drink is None:
             abort(404)
         a_drink.delete()
@@ -215,8 +214,7 @@ def auth_error(error):
             {
                 "success": False,
                 "error": error.status_code,
-                # "message": error.error.get("description"),
-                **error.error,
+                "message": error.error.get("description"),
             }
         ),
         error.status_code,
